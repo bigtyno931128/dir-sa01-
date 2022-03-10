@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>dir | 개발자를 위한 아이템 추천</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="../static/assets/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" crossorigin="anonymous"></script>
+        <!-- Bulma CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="../static/css/styles.css" rel="stylesheet" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="../static/js/jquery.cookie.min.js"></script>
+        <script src="../static/js/post.js"></script>
+        <style>
+            .portfolio-modal{
+                height: 900px;
+                width: 100%;
+            }
+            .logoutBtn{
+                background-color: inherit;
+                border: 1px solid white;
+                border-radius: 9999px;
+            }
+        </style>
+
+        <script>
+            function delete_item(postid){
+                const delete_item_id = postid
+                $.ajax({
+                    type: "POST",
+                    url: "/delete",
+                    data: {
+                        delete_item_id_give: delete_item_id,
+                    },
+                    success: function (response) {
+                        alert(response['msg'])
+                        window.location.reload()
+                    }
+                })
+            }
+
+<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
+
+<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
+
+            function posting_item() {
+                const url = $("#url").val()
+                const star = $("#star").val()
+                const category = $("#category").val()
+                const comment = $("#comment").val()
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/item',
+                    data: {url_give: url, star_give:star, comment_give:comment, category_give:category},
+                    success: function (response) {
+                        alert(response['msg'])
+                        window.location.reload()
+                    }
+                });
+                readTitle();
+            }
+<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
+
+<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
+
+            function open_box() {
+                $('#post-box').show()
+            }
+
+            function close_box() {
+                $('#post-box').hide()
+            }
+
+            function logout() {
+                $.removeCookie('mytoken', {path: '/'});
+                alert('로그아웃!')
+                window.location.href = "/"
+            }
+        </script>
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand" href="#page-top"><img src="../static/assets/img/navbar-logo.svg" alt="..." /></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars ms-1"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+                        {% if user_info is not defined %}
+                            <li class="nav-item"><a class="nav-link" href="/login">로그인/회원가입</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link">{{ user_info.username }}님</a></li>
+                            <li class="nav-item">
+                                <button class="logoutBtn"><a class="nav-link logoutText" onclick="logout()">로그아웃</a></button>
+                            </li>
+
+                            </ul>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container">
+                <div class="masthead-subheading">센스있는 개발자를 위한 아이템 추천!</div>
+                <div class="masthead-heading text-lowercasecase"><a class="hometitle" href="/">d i r</a></div>
+                {% if user_info is defined %}
+                    <a class="btn btn-primary btn-xl text-uppercase" onclick="open_box()">리뷰 입력하기</a>
+                {% endif %}
+
+            </div>
+        </header>
+        <div class="mypost" id="post-box">
+            <div class="form-floating mb-3">
+                <input id="url" type="email" class="form-control" placeholder="제품 url을 남겨주세요">
+                <label>제품URL</label>
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text">카테고리</label>
+                <select class="form-select" id="category">
+                    <option selected>-- 선택하기 --</option>
+                    <option value="laptop">노트북</option>
+                    <option value="moniter">모니터</option>
+                    <option value="mouse">마우스</option>
+                    <option value="keyboard">키보드</option>
+                    <option value="other">기타</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                <select class="form-select" id="star">
+                    <option selected>-- 선택하기 --</option>
+                    <option value="1">⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                </select>
+            </div>
+            <div class="form-floating">
+                <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+                <label for="floatingTextarea2">코멘트</label>
+            </div>
+            <div class="mybtns">
+                <button onclick="posting_item()" type="button" class="btn btn-dark">기록하기</button>
+                <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
+            </div>
+        </div>
+        <!-- Services-->
+        <section class="page-section" id="services">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <a href="/laptop">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-laptop fa-stack-1x fa-inverse"></i>
+                            </a>
+                        </span>
+                        <h4 class="my-3">노트북</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <a href="/moniter">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-desktop fa-stack-1x fa-inverse"></i>
+                            </a>
+                        </span>
+                        <h4 class="my-3">모니터</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <a href="/mouse">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-mouse fa-stack-1x fa-inverse"></i>
+                            </a>
+                        </span>
+                        <h4 class="my-3">마우스</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <a href="/keyboard">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-keyboard fa-stack-1x fa-inverse"></i>
+                            </a>
+                        </span>
+                        <h4 class="my-3">키보드</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <a href="/other">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-chair fa-stack-1x fa-inverse"></i>
+                            </a>
+                        </span>
+                        <h4 class="my-3">기타</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
+
+        <!-- Portfolio Grid-->
+        <section class="page-section bg-light" id="portfolio">
+            <div class="container">
+                <div class="row">
+                    {% for item in items %}
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <!-- Portfolio item 1-->
+                        <div class="portfolio-item">
+                            <a class="portfolio-link" data-bs-toggle="modal" onclick='$("#modal_detailView{{ loop.index }}").addClass("is-active"); get_posts()'>
+                                <div class="portfolio-hover">
+                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                                </div>
+                                <img class="img-fluid" src={{ item.image }} alt="..." />
+                            </a>
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">{{ item.title}}</div>
+                                <div class="portfolio-caption-subheading text-muted">{{ item.price }}원</div>
+                                {% if item.star == "5" %}
+                                    <div class="portfolio-caption-subheading text-muted">⭐⭐⭐⭐⭐️</div>
+                                {% elif item.star == "4" %}
+                                    <div class="portfolio-caption-subheading text-muted">⭐⭐⭐⭐</div>
+                                {% elif item.star == "3" %}
+                                    <div class="portfolio-caption-subheading text-muted">⭐⭐⭐</div>
+                                {% elif item.star == "2" %}
+                                    <div class="portfolio-caption-subheading text-muted">⭐⭐</div>
+                                {% elif item.star == "1" %}
+                                    <div class="portfolio-caption-subheading text-muted">⭐</div>
+                                {% endif %}
+                                <div class="portfolio-caption-subheading text-muted">{{ item.comment }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        <!-- Portfolio Modals-->
+        {% for item in items %}
+        <div id="modal_detailView{{ loop.index }}" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Detail View</p>
+                    <button class="delete" aria-label="close" onclick='$("#modal_detailView{{ loop.index }}").removeClass("is-active")'></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="tile is-ancestor">
+                        <div class="tile is-vertical is-12">
+                            <div class="tile">
+                                <div class="tile is-parent">
+                                    <article class="tile is-child notification is-grey-darker">
+                                        <p class="subtitle is-size-5">{{ item.title }}</p> <!--{ 제품 이름 넣기 }} -->
+                                        <figure class="image is-4by3">
+                                            <img src="{{ item.image }}"> <!--{ 제품 이미지 넣기 }} -->
+                                        </figure>
+                                    </article>
+                                </div>
+                                <div class="tile is-parent is-vertical">
+                                    <article class="tile is-child notification is-grey-darker">
+                                        <p class="subtitle">Spec</p>
+                                        <p class="is-size-7">{{ item.spec }}</p> <!--{ 제품 스펙 넣기 }} -->
+                                    </article>
+                                    <article class="tile is-child notification is-grey-darker">
+                                        <p class="subtitle">Best-Review</p>
+                                        <p class="is-size-7">{{ item.bs_01 }} : {{ item.bs_01_re }}<br>{{ item.bs_02 }} : {{ item.bs_02_re }}<br>{{ item.bs_03 }} : {{ item.bs_03_re }}</p> <!--{ ai-review 넣기 }} -->
+                                    </article>
+                                </div>
+                            </div>
+                            <div class="tile is-parent">
+                                <article class="tile is-child notification is-grey-darker">
+                                    <p class="subtitle">Comment</p>
+                                    <div class="content">
+                                        <div class="field has-addons">
+                                          <div class="control is-expanded">
+                                              <input id="textarea-post" class="input is-fullwidth" type="text" placeholder="한줄평 작성부탁드립니다.">
+                                          </div>
+                                          <div class="control">
+                                            <button type="submit" class="button is-dark" onclick="com_post()">남기기</button>
+                                          </div>
+                                        </div>
+                                        </br> <!--{ 로딩전 삭제 할것. }} -->
+                                        <article id="comment_box">
+
+                                        </article>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot columns is-centered">
+                    <button class="button " onclick='$("#modal_detailView{{ loop.index }}").removeClass("is-active")'>Cancel</button>
+                </footer>
+            </div>
+        </div>
+        {% endfor %} #}
+
+<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
+        <!-- Footer-->
+        <footer class="footer py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 text-lg-start">Copyright &copy; dir 2022</div>
+                </div>
+            </div>
+        </footer>
+        {% for item in items %}
+            <div class="portfolio-modal modal fade" id="portfolioModal{{ loop.index }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="close-modal" data-bs-dismiss="modal"><img src="../static/assets/img/close-icon.svg" alt="Close modal" /></div>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8">
+                                    <div class="modal-body">
+                                        <!-- Project details-->
+                                        <h2 class="text-uppercase">{{ item.title }}</h2>
+                                        <img class="img-fluid d-block mx-auto" src={{ item.image }} alt="..." />
+                                        <p>{{ name }} 회원님이 직접 사용해 보고 추천하신 제품입니다.</p>
+                                        <ul class="list-inline">
+                                            <li>
+                                                <strong>가격:</strong>
+                                                {{ item.price }}
+                                            </li>
+                                            <li>
+                                                <strong>추천이유:</strong>
+                                                {{ item.comment }}
+                                            </li>
+                                        </ul>
+                                        <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                            <i class="fas fa-times me-1"></i>
+                                            Close Project
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="../static/js/scripts.js"></script>
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <!-- * *                               SB Forms JS                               * *-->
+        <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    </body>
+        <!--********************************************************************************-->
+
+        <!--********************************************************************************-->
+</html>
