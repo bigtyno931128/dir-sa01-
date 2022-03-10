@@ -42,7 +42,6 @@ def movie_post():
     star_receive = request.form['star_give']
     comment_receive = request.form['comment_give']
     category_receive = request.form['category_give']
-    username_receive = request.form['username_give']
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
@@ -61,7 +60,6 @@ def movie_post():
     bs_03_re = soup.select_one('div.bestReview_best_review__T0LD6 > ul > li:nth-child(3) > a > span').text
 
     doc = {
-        "username": username_receive,
         "title": title,
         "image": image,
         "price": price,
@@ -154,19 +152,6 @@ def check_dup():
 ##############################################################################################
 ##                      코멘트
 ##############################################################################################
-@app.route('/posting', methods=['POST'])
-def posting():
-    token_receive = request.cookies.get('mytoken')
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.users.find_one({"username": payload["id"]})
-        comment_receive = request.form["comment_give"]
-        target_item_id_receive = request.form["targetitemid_give"]
-        db.devItems.update_one({'_id': ObjectId(target_item_id_receive)}, { '$addToSet': { "innercomment": {"owner":user_info["username"], "content":comment_receive}}})
-
-        return jsonify({"result": "success", 'msg': '포스팅 성공'})
-    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return render_template('login.html', user_info=user_info)
 
 @app.route('/item/comment', methods=['POST'])
 def com_post():
@@ -177,14 +162,12 @@ def com_post():
         user_info = db.users.find_one({"username": payload["id"]})
         com_receive = request.form["com_give"]
         date_receive = request.form["date_give"]
-        target_item_id_receive = request.form["targetitemid_give"]
-        db.devItems.update_one({'_id': ObjectId(target_item_id_receive)}, {'$addToSet': {"innercomment": {"owner": user_info["username"], "content": comment_receive}}})
+
 
         doc = {
             "username": user_info["username"],
             "comment": com_receive,
-            "date": date_receive,
-            "identify": identify_receive
+            "date": date_receive
         }
         db.posts.insert_one(doc)
         print(doc)

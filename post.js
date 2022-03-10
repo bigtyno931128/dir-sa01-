@@ -1,25 +1,7 @@
-// 한줄평 남기기 //
-let titleBucket = '';
-
-function readTitle() {
-  // title 저장을 위한 변수 선언
-  const details = document.querySelectorAll('.modal_detailView');
-
-  details.forEach(function (modal_detailView) {
-    details.addEventListener('click', clickDetail);
-  });
-
-  function clickDetail(e) {
-    let identify = e.currentTarget.getAttribute('data-bs-whatever');
-    // titleBucket에 title값을 넣어줍니다
-    titleBucket = identify;
-  }
-}
 
 function com_post() {
     let com = $("#textarea-post").val()
     let today = new Date().toISOString()
-    let identify = titleBucket;
 
     if (com == "") {
         alert("후기를 입력해주세요!")
@@ -31,8 +13,7 @@ function com_post() {
         url: "/item/comment",
         data: {
             com_give: com,
-            date_give: today,
-            identify_give: identify
+            date_give: today
 
         },
         success: function (response) {
@@ -42,32 +23,14 @@ function com_post() {
     })
 }
 
-  function post_comment(targetItemId) {
-                let comment = $("#userComment").val()
-                let post_id = targetItemId
-                console.log(post_id)
-                $.ajax({
-                    type: "POST",
-                    url: "/posting",
-                    data: {
-                        comment_give: comment,
-                        targetitemid_give:post_id
-                    },
-                    success: function (response) {
-                        alert(response.result)
-                        window.location.reload()
-                    }
-                })
-            }
-
 function get_posts() {
-    let identify = titleBucket;
+
     $("#comment_box").empty()
 
     $.ajax({
         type: "GET",
         url: `/get_posts`,
-        data: { identify_give: identify },
+        data: { },
         success: function (response) {
             let posts = response["posts"]
             for (let i = 0; i < posts.length; i++) {
