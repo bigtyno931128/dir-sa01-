@@ -7,19 +7,16 @@
         <meta name="author" content="" />
         <title>dir | 개발자를 위한 아이템 추천</title>
         <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="../static/assets/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="static/assets/favicon.ico" />
         <!-- Font Awesome icons (free version)-->
         <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" crossorigin="anonymous"></script>
-        <!-- Bulma CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
         <!-- Google fonts-->
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="../static/css/styles.css" rel="stylesheet" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="../static/js/jquery.cookie.min.js"></script>
-        <script src="../static/js/post.js"></script>
+        <script src="/static/js/jquery.cookie.min.js"></script>
         <style>
             .portfolio-modal{
                 height: 900px;
@@ -30,15 +27,29 @@
                 border: 1px solid white;
                 border-radius: 9999px;
             }
+            .mypost{
+                position: inherit;
+            }
+            .smallMsg{
+                opacity: 0.5;
+                position: absolute;
+                top:77px;
+                left: 30px
+            }
+            .itemDeleteBtn{
+                background-color: tomato;
+                border: 1px solid red;
+            }
         </style>
 
         <script>
             function delete_item(postid){
+                const delete_item_id = postid
                 $.ajax({
                     type: "POST",
                     url: "/delete",
                     data: {
-                        delete_item_id_give: postid,
+                        delete_item_id_give: delete_item_id,
                     },
                     success: function (response) {
                         alert(response['msg'])
@@ -47,9 +58,24 @@
                 })
             }
 
-<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
+            function post_comment(targetItemId) {
+                let comment = $("#userComment").val()
+                let post_id = targetItemId
+                console.log(comment)
+                console.log(post_id)
+                $.ajax({
+                    type: "POST",
+                    url: "/posting",
+                    data: {
+                        comment_give: comment,
+                        targetitemid_give:post_id
+                    },
+                    success: function (response) {
+                        alert(response.result)
 
-<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
+                    }
+                })
+            }
 
             function posting_item(username) {
                 const url = $("#url").val()
@@ -68,9 +94,6 @@
                     }
                 });
             }
-<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
-
-<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
 
             function open_box() {
                 $('#post-box').show()
@@ -99,16 +122,16 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
                         {% if user_info is not defined %}
-                            <li class="nav-item"><a class="nav-link" href="/login">로그인/회원가입</a></li>
+                        <li class="nav-item"><a class="nav-link" href="login">로그인/회원가입</a></li>
                         {% else %}
-                            <li class="nav-item"><a class="nav-link">{{ user_info.username }}님</a></li>
-                            <li class="nav-item">
-                                <button class="logoutBtn"><a class="nav-link logoutText" onclick="logout()">로그아웃</a></button>
-                            </li>
+                        <li class="nav-item"><a class="nav-link">{{ user_info.username }}님</a></li>
+                        <li class="nav-item">
+                            <button class="logoutBtn"><a class="nav-link logoutText" onclick="logout()">로그아웃</a>
+                            </button>
+                        </li>
 
-                            </ul>
-                        {% endif %}
                     </ul>
+                    {% endif %}
                 </div>
             </div>
         </nav>
@@ -128,6 +151,7 @@
                 <input id="url" type="email" class="form-control" placeholder="제품 url을 남겨주세요">
                 <label>제품URL</label>
             </div>
+            <small class="smallMsg">네이버 쇼핑 URL을 입력해주세요.</small>
             <div class="input-group mb-3">
                 <label class="input-group-text">카테고리</label>
                 <select class="form-select" id="category">
@@ -213,9 +237,6 @@
                 </div>
             </div>
         </section>
-
-<!-- 아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래아래 -->
-
         <!-- Portfolio Grid-->
         <section class="page-section bg-light" id="portfolio">
             <div class="container">
@@ -223,8 +244,8 @@
                     {% for item in items %}
                     <div class="col-lg-4 col-sm-6 mb-4">
                         <!-- Portfolio item 1-->
-                        <div class="portfolio-item">
-                            <a class="portfolio-link" data-bs-toggle="modal" onclick='$("#modal_detailView{{ loop.index }}").addClass("is-active"); get_posts()'>
+                        <div class="portfolio-item" id={{ item._id }}>
+                            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal{{ item._id }}">
                                 <div class="portfolio-hover">
                                     <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
                                 </div>
@@ -232,7 +253,7 @@
                             </a>
                             <div class="portfolio-caption">
                                 <div class="portfolio-caption-heading">{{ item.title}}</div>
-                                <div class="portfolio-caption-subheading text-muted">{{ item.price }}원</div>
+                                <div class="portfolio-caption-subheading text-muted">{{ item.price }}</div>
                                 {% if item.star == "5" %}
                                     <div class="portfolio-caption-subheading text-muted">⭐⭐⭐⭐⭐️</div>
                                 {% elif item.star == "4" %}
@@ -252,75 +273,6 @@
                 </div>
             </div>
         </section>
-        <!-- Portfolio Modals-->
-        {% for item in items %}
-        <div id="modal_detailView{{ loop.index }}" class="modal">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Detail View</p>
-                    <button class="delete" aria-label="close" onclick='$("#modal_detailView{{ loop.index }}").removeClass("is-active")'></button>
-                </header>
-                <section class="modal-card-body">
-                    <div class="tile is-ancestor">
-                        <div class="tile is-vertical is-12">
-                            <div class="tile">
-                                <div class="tile is-parent">
-                                    <article class="tile is-child notification is-grey-darker">
-                                        <p class="subtitle is-size-5">{{ item.title }}</p> <!--{ 제품 이름 넣기 }} -->
-                                        <figure class="image is-4by3">
-                                            <img src="{{ item.image }}"> <!--{ 제품 이미지 넣기 }} -->
-                                        </figure>
-                                    </article>
-                                </div>
-                                <div class="tile is-parent is-vertical">
-                                    <article class="tile is-child notification is-grey-darker">
-                                        <p class="subtitle">Spec</p>
-                                        <p class="is-size-7">{{ item.spec }}</p> <!--{ 제품 스펙 넣기 }} -->
-                                    </article>
-                                    <article class="tile is-child notification is-grey-darker">
-                                        <p class="subtitle">Best-Review</p>
-                                        <p class="is-size-7">{{ item.bs_01 }} : {{ item.bs_01_re }}<br>{{ item.bs_02 }} : {{ item.bs_02_re }}<br>{{ item.bs_03 }} : {{ item.bs_03_re }}</p> <!--{ ai-review 넣기 }} -->
-                                    </article>
-                                </div>
-                            </div>
-                            <div class="tile is-parent">
-                                <article class="tile is-child notification is-grey-darker">
-                                    <p class="subtitle">Comment</p>
-                                    <div class="content">
-                                        <div class="field has-addons">
-                                        {% if user_info is defined %}
-                                          <div class="control is-expanded">
-                                              <input id="textarea-post" class="input is-fullwidth" type="text" placeholder="한줄평 작성부탁드립니다.">
-                                          </div>
-                                          <div class="control">
-                                            <button type="submit" class="button is-dark" onclick="com_post('{{ item._id }}')">남기기</button>
-                                          </div>
-                                        {% endif %}
-                                        </div>
-                                        </br> <!--{ 로딩전 삭제 할것. }} -->
-                                        <article id="comment_box">
-
-                                        </article>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <footer class="modal-card-foot columns is-centered">
-                    <button class="button " onclick='$("#modal_detailView{{ loop.index }}").removeClass("is-active")'>
-                        Cancel
-                    </button>
-                    {% if (user_info is defined) and (user_info.username == item.username) %}
-                    <button class="itemDeleteBtn" onclick="delete_item('{{ item._id }}')">제품 삭제하기</button>
-                    {% endif %}
-                </footer>
-            </div>
-        </div>
-        {% endfor %}
-
-<!-- 위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위위 -->
         <!-- Footer-->
         <footer class="footer py-4">
             <div class="container">
@@ -329,8 +281,10 @@
                 </div>
             </div>
         </footer>
+        <!-- Portfolio Modals-->
+        <!-- Portfolio item 1 modal popup-->
         {% for item in items %}
-            <div class="portfolio-modal modal fade" id="portfolioModal{{ loop.index }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="portfolio-modal modal fade" id="portfolioModal{{ item._id }}" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="close-modal" data-bs-dismiss="modal"><img src="../static/assets/img/close-icon.svg" alt="Close modal" /></div>
@@ -339,9 +293,9 @@
                                 <div class="col-lg-8">
                                     <div class="modal-body">
                                         <!-- Project details-->
-                                        <h2 class="text-uppercase">{{ item.title }}</h2>
+                                        <h2 id="item-detail-title" class="text-uppercase">{{ item.title }}</h2>
                                         <img class="img-fluid d-block mx-auto" src={{ item.image }} alt="..." />
-                                        <p>{{ name }} 회원님이 직접 사용해 보고 추천하신 제품입니다.</p>
+                                        <p> {{ item.username }}님이 추천하신 제품입니다.</p>
                                         <ul class="list-inline">
                                             <li>
                                                 <strong>가격:</strong>
@@ -352,10 +306,35 @@
                                                 {{ item.comment }}
                                             </li>
                                         </ul>
+                                        {% if user_info is defined %}
+                                            <div class="user-itemComment">
+                                                <form class="user-itemComment-form">
+                                                    <label class="user-itemComment-label" for="userComment">내 사용후기:</label>
+                                                    <input class="user-itemComment-input" id="userComment" placeholder="직접 사용해 보신 분들의 의견을 남겨주세요."/>
+                                                    <button class="user-itemComment-Btn" onclick=post_comment('{{ item._id }}')>확인</button>
+                                                </form>
+                                            </div>
+
+
+                                        {% endif %}
+                                        <ul>
+                                            {% for a in item.innercomment %}
+                                            <li style="list-style: none">
+                                                <span>{{ a.owner }} :</span>
+                                                <span>{{ a.content }}</span>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
                                         <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
                                             <i class="fas fa-times me-1"></i>
-                                            Close Project
+                                            창 닫기
                                         </button>
+                                        {% if (user_info is defined) and (user_info.username == item.username) %}
+                                            <button class="btn btn-primary btn-xl text-uppercase itemDeleteBtn" data-bs-dismiss="modal" type="button" onclick="delete_item('{{ item._id }}')">
+                                                <i class="fas fa-times me-1">{{item.user}}</i>
+                                                제품 삭제하기
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -374,7 +353,4 @@
         <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
         <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
     </body>
-        <!--********************************************************************************-->
-
-        <!--********************************************************************************-->
 </html>
